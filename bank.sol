@@ -1,23 +1,44 @@
 pragma solidity ^0.4.0;
 
-contract Bank{
+interface Regulator{
+    function checkValue(uint amount) returns (bool);
+    function loan() returns (bool);
+}
+
+contract Bank is Regulator{
     uint private value;
+    address private owner;
 
     function Bank(uint amount){
         value = amount;
+        owner = msg.sender;
     }
 
-    function deposit(uint amount){
+    modifier ownerFunc{
+        require(owner == msg.sender);
+        _;
+    }
+
+    function deposit(uint amount) ownerFunc{
         value += amount;
     }
 
-    function withdraw(uint amount){
-       // if(value-amount)
+    function withdraw(uint amount) ownerFunc{
+        if(checkValue(amount)){
             value -= amount;
+        }
     }
 
-    function balance() returns (uint){
+    function balance() returns (uint) {
         return value;
+    }
+
+    function checkValue(uint amount) returns (bool){
+        return amount <= value;
+    }
+
+    function loan() returns (bool){
+        return value > 0;
     }
 }
 
